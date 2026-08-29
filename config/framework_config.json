@@ -1,0 +1,10 @@
+{
+  "pef": {
+    "pi_digits_length": 2000,
+    "mod3_lambda": {"0": 1.0, "1": 0.8, "2": 0.5},
+    "entropy": {
+      "skip_single_value_columns": true
+    },
+    "anchor_retention_days": 30
+  }
+}
