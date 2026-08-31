@@ -15,13 +15,47 @@ pip install -r requirements.txt
 python demo_minimal.py
 ```
 
-The demo demonstrates in ~50 lines:
-1. **PEFmod creation** — read-only state snapshot with domain tag (P/E/F)
-2. **π-anchor allocation** — unforgeable, irreversible, globally unique
-3. **Three-tier ledger recording** — axiom (readonly) / runtime (read-write) / audit (append-only)
-4. **Self-check** — 8 verification items: anchor validity, domain consistency, one-to-one binding, temporal ordering, audit hash integrity
-5. **Circuit breaker** — duplicate anchor binding triggers P0 termination
-6. **Archive** — archived anchors can never be reused
+**Expected output (exit code 0, last line machine-extractable):**
+```
+[场景1] 正常流程：PEFmod创建 → Πₛ分配(域匹配) → 三级登记簿record()
+  ① 创建 PEFmod: domain=P, state_hash=5505f831281b…, t_state=...
+  ② 分配 Πₛ=3, 域=P (π%3=0), t_anchor=...
+  ③ record() → status=CONFIRMED, seq=1, t_write=...
+     时序: t_state ≤ t_anchor ≤ t_write
+
+[场景2] 攻击1：未锚定写入（绕过Πₛ分配直接record）
+  ✅ P0熔断: P0: Πₛ=99999 无效或未活动，禁止登记（引用未来态）
+
+[场景3] 攻击2：篡改审计条目（修改detail字段）
+  ✅ 哈希不一致: True（篡改被检测）
+
+[场景4] 攻击3：域不匹配（PEFmod声明P，但Πₛ域≠P）
+  ✅ 三重一致性失败: P0: 三重一致性失败 Πₛ=4 π%3=1→E, domain_tag=P
+
+[场景5] 归档后锚不可复用（铁律7）
+  归档后 is_active=False（应为False）
+
+SELF-CHECK (8 items):
+  [PASS] Πₛ合法性-运行时条目
+  [PASS] 域一致性-铁律1
+  [PASS] 一对一-Πₛ主键唯一
+  [PASS] 时序-状态≤锚≤写入
+  [PASS] 时序-写入序号单调
+  [PASS] 审计-防篡改哈希一致
+  [PASS] Π₀隔离-登记簿不承载Π₀
+  [PASS] 公理层-只读契约
+
+SELF-CHECK: 8/8 PASS
+```
+
+The demo (`demo_minimal.py`, ~600 lines) is extracted from the production PEF_Core codebase and demonstrates:
+1. **PEFmod creation** — read-only state snapshot with domain tag (P/E/F), structural SHA-256 hash
+2. **Πₛ anchor allocation** — `PiSDispatcher.allocate()`: one-time, non-reentrant, domain by π%3
+3. **Three-tier ledger recording** — `PEF_StateLedger.record()`: axiom (readonly) / runtime (read-write) / audit (append-only)
+4. **Anchored write timing** — `t_state ≤ t_anchor ≤ t_write`, violation → P0 circuit breaker
+5. **Self-check** — 8 verification items: anchor validity, domain consistency (铁律1), one-to-one binding, temporal ordering, audit hash integrity, Π₀ isolation, axiom readonly
+6. **Attack demonstrations** — unanchored write → P0, audit tampering → hash mismatch, domain mismatch → triple-consistency failure
+7. **Archive** — archived anchors can never be reused (铁律7, non-reuse of fault π)
 
 ---
 
