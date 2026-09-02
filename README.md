@@ -132,6 +132,66 @@ To integrate into a specific domain:
 
 ---
 
+## A/B Evaluation
+
+This repository includes a complete A/B test harness that compares **Bare Extractor** (no PEF) vs **PEF-Enhanced Extractor** (π-anchored + anomaly detection + circuit breaker + audit chain).
+
+### Run the evaluation
+
+```bash
+cd evaluation
+python run_ab_test.py
+```
+
+### Results (10 samples, 5 normal + 5 injected anomalies)
+
+| Metric | A: Bare Extractor | B: PEF-Enhanced | Difference |
+|--------|-------------------|------------------|------------|
+| Extraction accuracy | 96% | 96% | same (same extraction logic) |
+| Anomaly detection rate | **0%** | **100% (5/5)** | +100% |
+| Anomaly precision | 0% | 100% | +100% |
+| F1 score | 0 | 1.0 | +1.0 |
+| Circuit breaker response | **0%** | **100% (2/2 CRITICAL)** | +100% |
+| Audit chain events | 0 | 24 | +24 |
+| Audit tamper-evident | No | Yes (SHA-256 hash chain) | +Yes |
+
+### 5 anomaly types detected
+
+1. `field_value_error` — wrong field value in input
+2. `timestamp_forgery` — input timestamp deviates >24h from actual time
+3. `identity_spoofing` — entity_id does not match known prefix
+4. `missing_field` — required field absent from input
+5. `hallucinated_value` — extra field not in ground truth
+
+### Core conclusion
+
+**PEF does not improve extraction accuracy — it improves detection of bad extractions and auditability of all extractions.**
+
+- A group *hopes* it is correct (extracts and finishes, no way to verify input authenticity)
+- B group *can prove* it is correct (every extraction carries π-anchor coordinate, 5-layer anomaly detection, hash-linked audit chain, CRITICAL anomalies trigger immediate circuit breaker)
+
+### Evaluation artifacts
+
+```
+evaluation/
+├── run_ab_test.py         # Main test script
+├── README.md              # Evaluation documentation
+├── requirements.txt       # No external dependencies (stdlib only)
+├── data/
+│   └── test_samples.json  # 10 test samples (5 normal + 5 anomalies)
+├── lib/
+│   ├── bare_extractor.py  # A group: bare extractor (no PEF)
+│   ├── pef_extractor.py   # B group: PEF-enhanced extractor
+│   └── metrics.py         # Metric computation
+└── output/                # Generated results
+    ├── ab_report.md       # Full A/B comparison report
+    ├── a_group_logs.jsonl # A group raw logs
+    ├── b_group_logs.jsonl # B group PEF-anchored logs
+    └── b_audit_chain.jsonl # B group SHA-256 hash-linked audit chain
+```
+
+---
+
 ## Relationship to PEF Architecture Theory
 
 This repository is the **software PEF (π-anchored)** reference implementation. The meta-architecture theory, boundary map, non-obviousness argument, and physical PEF (thermodynamics-anchored) instantiation are documented in:

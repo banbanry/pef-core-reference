@@ -1,0 +1,113 @@
+{
+  "description": "PEF A/B Test Samples — desensitized generic entity extraction task",
+  "field_schema": ["field_a", "field_b", "field_c", "field_d", "field_e"],
+  "anomaly_types": [
+    "field_value_error",
+    "timestamp_forgery",
+    "identity_spoofing",
+    "missing_field",
+    "hallucinated_value"
+  ],
+  "samples": [
+    {
+      "sample_id": "SAMPLE-001",
+      "input": {
+        "entity_id": "ENT-001",
+        "timestamp": "2026-08-31T10:00:00Z",
+        "raw_fields": {"field_a": "alpha-001", "field_b": "beta-001", "field_c": "gamma-001", "field_d": "delta-001", "field_e": "epsilon-001"}
+      },
+      "ground_truth": {"field_a": "alpha-001", "field_b": "beta-001", "field_c": "gamma-001", "field_d": "delta-001", "field_e": "epsilon-001"},
+      "injected_anomaly": null
+    },
+    {
+      "sample_id": "SAMPLE-002",
+      "input": {
+        "entity_id": "ENT-002",
+        "timestamp": "2026-08-31T10:01:00Z",
+        "raw_fields": {"field_a": "alpha-002", "field_b": "beta-002", "field_c": "gamma-002", "field_d": "delta-002", "field_e": "epsilon-002"}
+      },
+      "ground_truth": {"field_a": "alpha-002", "field_b": "beta-002", "field_c": "gamma-002", "field_d": "delta-002", "field_e": "epsilon-002"},
+      "injected_anomaly": null
+    },
+    {
+      "sample_id": "SAMPLE-003",
+      "input": {
+        "entity_id": "ENT-003",
+        "timestamp": "2026-08-31T10:02:00Z",
+        "raw_fields": {"field_a": "alpha-003", "field_b": "beta-003", "field_c": "gamma-003", "field_d": "delta-003", "field_e": "epsilon-003"}
+      },
+      "ground_truth": {"field_a": "alpha-003", "field_b": "beta-003", "field_c": "gamma-003", "field_d": "delta-003", "field_e": "epsilon-003"},
+      "injected_anomaly": null
+    },
+    {
+      "sample_id": "SAMPLE-004",
+      "input": {
+        "entity_id": "ENT-004",
+        "timestamp": "2026-08-31T10:03:00Z",
+        "raw_fields": {"field_a": "alpha-004", "field_b": "beta-004", "field_c": "gamma-004", "field_d": "delta-004", "field_e": "epsilon-004"}
+      },
+      "ground_truth": {"field_a": "alpha-004", "field_b": "beta-004", "field_c": "gamma-004", "field_d": "delta-004", "field_e": "epsilon-004"},
+      "injected_anomaly": null
+    },
+    {
+      "sample_id": "SAMPLE-005",
+      "input": {
+        "entity_id": "ENT-005",
+        "timestamp": "2026-08-31T10:04:00Z",
+        "raw_fields": {"field_a": "alpha-005", "field_b": "beta-005", "field_c": "gamma-005", "field_d": "delta-005", "field_e": "epsilon-005"}
+      },
+      "ground_truth": {"field_a": "alpha-005", "field_b": "beta-005", "field_c": "gamma-005", "field_d": "delta-005", "field_e": "epsilon-005"},
+      "injected_anomaly": null
+    },
+    {
+      "sample_id": "SAMPLE-006",
+      "input": {
+        "entity_id": "ENT-006",
+        "timestamp": "2026-08-31T10:05:00Z",
+        "raw_fields": {"field_a": "WRONG-alpha-006", "field_b": "beta-006", "field_c": "gamma-006", "field_d": "delta-006", "field_e": "epsilon-006"}
+      },
+      "ground_truth": {"field_a": "alpha-006", "field_b": "beta-006", "field_c": "gamma-006", "field_d": "delta-006", "field_e": "epsilon-006"},
+      "injected_anomaly": {"type": "field_value_error", "field": "field_a", "wrong_value": "WRONG-alpha-006", "correct_value": "alpha-006"}
+    },
+    {
+      "sample_id": "SAMPLE-007",
+      "input": {
+        "entity_id": "ENT-007",
+        "timestamp": "2026-08-30T09:00:00Z",
+        "raw_fields": {"field_a": "alpha-007", "field_b": "beta-007", "field_c": "gamma-007", "field_d": "delta-007", "field_e": "epsilon-007"}
+      },
+      "ground_truth": {"field_a": "alpha-007", "field_b": "beta-007", "field_c": "gamma-007", "field_d": "delta-007", "field_e": "epsilon-007"},
+      "injected_anomaly": {"type": "timestamp_forgery", "claimed_timestamp": "2026-08-30T09:00:00Z", "actual_timestamp": "2026-08-31T10:06:00Z"}
+    },
+    {
+      "sample_id": "SAMPLE-008",
+      "input": {
+        "entity_id": "FAKE-ENT-008",
+        "timestamp": "2026-08-31T10:07:00Z",
+        "raw_fields": {"field_a": "alpha-008", "field_b": "beta-008", "field_c": "gamma-008", "field_d": "delta-008", "field_e": "epsilon-008"}
+      },
+      "ground_truth": {"field_a": "alpha-008", "field_b": "beta-008", "field_c": "gamma-008", "field_d": "delta-008", "field_e": "epsilon-008"},
+      "injected_anomaly": {"type": "identity_spoofing", "claimed_id": "FAKE-ENT-008", "actual_id": "ENT-008"}
+    },
+    {
+      "sample_id": "SAMPLE-009",
+      "input": {
+        "entity_id": "ENT-009",
+        "timestamp": "2026-08-31T10:08:00Z",
+        "raw_fields": {"field_a": "alpha-009", "field_b": "beta-009", "field_c": "gamma-009", "field_d": "delta-009"}
+      },
+      "ground_truth": {"field_a": "alpha-009", "field_b": "beta-009", "field_c": "gamma-009", "field_d": "delta-009", "field_e": "epsilon-009"},
+      "injected_anomaly": {"type": "missing_field", "field": "field_e"}
+    },
+    {
+      "sample_id": "SAMPLE-010",
+      "input": {
+        "entity_id": "ENT-010",
+        "timestamp": "2026-08-31T10:09:00Z",
+        "raw_fields": {"field_a": "alpha-010", "field_b": "beta-010", "field_c": "gamma-010", "field_d": "delta-010", "field_e": "epsilon-010", "field_extra": "phantom-value-999"}
+      },
+      "ground_truth": {"field_a": "alpha-010", "field_b": "beta-010", "field_c": "gamma-010", "field_d": "delta-010", "field_e": "epsilon-010"},
+      "injected_anomaly": {"type": "hallucinated_value", "field": "field_extra", "hallucinated": "phantom-value-999"}
+    }
+  ]
+}
