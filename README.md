@@ -1,5 +1,9 @@
 # PEF Core — Reference Implementation
 
+![PEF Core Reference CI](https://github.com/banbanry/pef-core-reference/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Theory](https://img.shields.io/badge/theory-pef--architecture-purple.svg)
+
 > **Anchored Determinism: only the anchor produces the potential difference.**
 
 Reference implementation of the PEF (Primary Entity – Execution Variable – Final Result) meta-architecture, extracted from a production deployment.

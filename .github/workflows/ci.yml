@@ -1,0 +1,140 @@
+name: PEF Core Reference CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  demo-self-check:
+    name: Demo Self-Check (8/8 PASS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run demo_minimal.py
+        run: |
+          python demo_minimal.py
+          echo "Exit code: $?"
+
+      - name: Verify 8/8 PASS
+        run: |
+          OUTPUT=$(python demo_minimal.py 2>&1)
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -q "SELF-CHECK: 8/8 PASS"; then
+            echo "✅ Self-check passed: 8/8 PASS"
+          else
+            echo "❌ Self-check failed"
+            exit 1
+          fi
+
+  ab-evaluation:
+    name: A/B Evaluation (0% -> 100% anomaly detection)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run A/B test
+        run: |
+          cd evaluation
+          python run_ab_test.py
+
+      - name: Verify A/B test results
+        run: |
+          cd evaluation
+          OUTPUT=$(python run_ab_test.py 2>&1)
+          echo "$OUTPUT"
+
+          # Check anomaly detection: A=0%, B=100%
+          if echo "$OUTPUT" | grep -q "Anomaly detection: A=0.00%, B=100.00%"; then
+            echo "✅ Anomaly detection verified: A=0%, B=100%"
+          else
+            echo "❌ Anomaly detection mismatch"
+            exit 1
+          fi
+
+          # Check circuit breaker: A=0%, B=100%
+          if echo "$OUTPUT" | grep -q "Circuit breaker: A=0.00%, B=100.00%"; then
+            echo "✅ Circuit breaker verified: A=0%, B=100%"
+          else
+            echo "❌ Circuit breaker mismatch"
+            exit 1
+          fi
+
+          # Check audit chain exists
+          if [ -f "output/b_audit_chain.jsonl" ]; then
+            LINES=$(wc -l < output/b_audit_chain.jsonl)
+            echo "✅ Audit chain exists: $LINES events"
+          else
+            echo "❌ Audit chain missing"
+            exit 1
+          fi
+
+  module-import-check:
+    name: Module Import Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Verify all core modules import
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          modules = [
+              'pef_core.pefmod',
+              'pef_core.state_ledger',
+              'pef_core.pi_constants',
+              'pef_core.pi_tools',
+              'pef_core.pef_shadow_graph',
+              'pef_core.software_state_vector',
+              'pef_core.evidence_theory',
+              'pef_core.information_entropy',
+              'pef_core.operator_combination',
+              'pef_core.semantic_error',
+              'pef_core.abstract_auditor',
+              'pef_core.config_loader',
+              'pef_core.pef_self_checklist',
+              'pef_core.utils',
+          ]
+          failed = []
+          for mod in modules:
+              try:
+                  __import__(mod)
+                  print(f'✅ {mod}')
+              except Exception as e:
+                  print(f'❌ {mod}: {e}')
+                  failed.append(mod)
+          if failed:
+              print(f'\\n{len(failed)} modules failed to import')
+              sys.exit(1)
+          else:
+              print(f'\\nAll {len(modules)} modules imported successfully')
+          "
