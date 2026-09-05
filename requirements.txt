@@ -1,2 +1,7 @@
-numpy>=1.24
-pandas>=2.0
+# PEF-Core-Reference — production kernel dependencies
+# Runtime: Python 3.8+
+# No third-party runtime deps for core modules; scanner extras below.
+
+# --- Optional: full pipeline extras ---
+# pandas>=1.5
+# numpy>=1.23
