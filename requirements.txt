@@ -1,7 +1,7 @@
 # PEF-Core-Reference — production kernel dependencies
 # Runtime: Python 3.8+
-# No third-party runtime deps for core modules; scanner extras below.
+# pef_core package (theory kernel) requires numpy/pandas.
+# core/ CLE modules and demo_minimal.py run with stdlib only.
 
-# --- Optional: full pipeline extras ---
-# pandas>=1.5
-# numpy>=1.23
+numpy>=1.24
+pandas>=2.0
